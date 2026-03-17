@@ -1,0 +1,13 @@
+node_modules/
+.git/
+.agent/
+.DS_Store
+package-lock.json
+package.json
+wrangler.toml
+.pagesignore
+.gitignore
+README.md
+task.md
+implementation_plan.md
+walkthrough.md
