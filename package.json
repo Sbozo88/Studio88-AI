@@ -1,0 +1,13 @@
+{
+    "name": "studio88-ai",
+    "version": "1.0.0",
+    "description": "Premium AI Agent Portfolio & Booking Site",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx serve .",
+        "dev": "npx serve ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
