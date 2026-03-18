@@ -2,6 +2,20 @@
    STUDIO88 AI — INTERACTIVITY
    ═══════════════════════════════════════════════════ */
 
+/* ── EmailJS Configuration ──────────────────────────
+   ⚠️  Replace the values below with YOUR EmailJS credentials.
+   Get them at https://www.emailjs.com (free, 200 emails/month)
+
+   EMAILJS_PUBLIC_KEY    → Account → API Keys → Public Key
+   EMAILJS_SERVICE_ID    → Email Services → your connected Gmail service ID
+   EMAILJS_TEMPLATE_NOTIFY → Template that emails YOU (team notification)
+   EMAILJS_TEMPLATE_CLIENT → Template that emails THE CLIENT (auto-reply/confirmation)
+   ─────────────────────────────────────────────────── */
+const EMAILJS_PUBLIC_KEY       = 'YOUR_PUBLIC_KEY';      // e.g. 'abc123XYZ'
+const EMAILJS_SERVICE_ID       = 'YOUR_SERVICE_ID';      // e.g. 'service_studio88'
+const EMAILJS_TEMPLATE_NOTIFY  = 'YOUR_TEMPLATE_ID';     // e.g. 'template_booking_notify'
+const EMAILJS_TEMPLATE_CLIENT  = 'YOUR_TEMPLATE_ID';     // e.g. 'template_booking_client' (can be same template)
+
 // Apply theme early to prevent flash
 let savedTheme = null;
 try {
@@ -16,15 +30,17 @@ if (savedTheme === 'light') {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    /* ── Init EmailJS ───────────────────────────────── */
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+
     /* ── Theme Toggle ──────────────────────────────── */
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            // Toggle on root HTML element
             document.documentElement.classList.toggle('light-mode');
-            // Toggle on body as fallback
             document.body.classList.toggle('light-mode');
-            
             const isLight = document.documentElement.classList.contains('light-mode');
             try {
                 localStorage.setItem('theme', isLight ? 'light' : 'dark');
@@ -42,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Mobile Nav Toggle ─────────────────────────── */
     const navToggle = document.getElementById('navToggle');
-    const navLinks = document.getElementById('navLinks');
+    const navLinks  = document.getElementById('navLinks');
     navToggle.addEventListener('click', () => {
         navToggle.classList.toggle('active');
         navLinks.classList.toggle('open');
@@ -64,9 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ── Intersection Observer (Reveal) ────────────── */
-    const reveals = document.querySelectorAll('.reveal');
+    const reveals     = document.querySelectorAll('.reveal');
     const observerOpts = { threshold: 0.15, rootMargin: '0px 0px -40px 0px' };
-    const observer = new IntersectionObserver((entries) => {
+    const observer    = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
@@ -80,13 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ═══════════════════════════════════════════════
        CALENDAR WIDGET
        ═══════════════════════════════════════════════ */
-    const calDays = document.getElementById('calDays');
-    const calMonth = document.getElementById('calMonth');
-    const calPrev = document.getElementById('calPrev');
-    const calNext = document.getElementById('calNext');
-    const timeSlots = document.getElementById('timeSlots');
+    const calDays      = document.getElementById('calDays');
+    const calMonth     = document.getElementById('calMonth');
+    const calPrev      = document.getElementById('calPrev');
+    const calNext      = document.getElementById('calNext');
+    const timeSlots    = document.getElementById('timeSlots');
     const timeSlotsGrid = document.getElementById('timeSlotsGrid');
-    const selectedDT = document.getElementById('selectedDateTime');
+    const selectedDT   = document.getElementById('selectedDateTime');
     const formSelected = document.getElementById('formSelected');
 
     const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -99,20 +115,19 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     let currentDate = new Date();
-    let viewMonth = currentDate.getMonth();
-    let viewYear = currentDate.getFullYear();
-    let selectedDay = null;
+    let viewMonth   = currentDate.getMonth();
+    let viewYear    = currentDate.getFullYear();
+    let selectedDay  = null;
     let selectedTime = null;
 
     function renderCalendar() {
         calMonth.textContent = `${MONTHS[viewMonth]} ${viewYear}`;
         calDays.innerHTML = '';
 
-        const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+        const firstDay    = new Date(viewYear, viewMonth, 1).getDay();
         const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-        const today = new Date();
+        const today       = new Date();
 
-        // Empty cells before first day
         for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement('div');
             empty.className = 'cal-day cal-day--empty';
@@ -120,12 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         for (let d = 1; d <= daysInMonth; d++) {
-            const dayEl = document.createElement('div');
+            const dayEl   = document.createElement('div');
             dayEl.className = 'cal-day';
             dayEl.textContent = d;
 
             const thisDate = new Date(viewYear, viewMonth, d);
-            const isPast = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const isPast   = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const isSunday = thisDate.getDay() === 0;
 
             if (isPast || isSunday) {
@@ -146,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectDay(d) {
-        selectedDay = { d, m: viewMonth, y: viewYear };
+        selectedDay  = { d, m: viewMonth, y: viewYear };
         selectedTime = null;
         renderCalendar();
         renderTimeSlots();
@@ -204,13 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
        ═══════════════════════════════════════════════ */
     document.querySelectorAll('.card-cta').forEach(btn => {
         btn.addEventListener('click', () => {
-            const appName = btn.dataset.app;
+            const appName  = btn.dataset.app;
             const appSelect = document.getElementById('bookingApp');
-            // Set dropdown
             for (const opt of appSelect.options) {
                 if (opt.text === appName) { appSelect.value = opt.value; break; }
             }
-            // Scroll to booking
             document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
         });
     });
@@ -219,13 +232,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ═══════════════════════════════════════════════
        FORM VALIDATION & SUBMISSION
        ═══════════════════════════════════════════════ */
-    const form = document.getElementById('bookingForm');
-    const nameInput = document.getElementById('bookingName');
-    const emailInput = document.getElementById('bookingEmail');
-    const appSelect = document.getElementById('bookingApp');
-    const modal = document.getElementById('successModal');
-    const modalText = document.getElementById('modalText');
-    const modalClose = document.getElementById('modalClose');
+    const form        = document.getElementById('bookingForm');
+    const nameInput   = document.getElementById('bookingName');
+    const emailInput  = document.getElementById('bookingEmail');
+    const phoneInput  = document.getElementById('bookingPhone');
+    const appSelect   = document.getElementById('bookingApp');
+    const messageInput = document.getElementById('bookingMessage');
+    const submitBtn   = document.getElementById('submitBtn');
+    const modal       = document.getElementById('successModal');
+    const modalText   = document.getElementById('modalText');
+    const modalClose  = document.getElementById('modalClose');
 
     function showError(id, msg) {
         document.getElementById(id).textContent = msg;
@@ -234,9 +250,31 @@ document.addEventListener('DOMContentLoaded', () => {
         ['nameError', 'emailError', 'appError'].forEach(id => showError(id, ''));
     }
 
-    form.addEventListener('submit', e => {
+    function setLoading(loading) {
+        submitBtn.disabled = loading;
+        submitBtn.classList.toggle('btn--loading', loading);
+    }
+
+    function showSubmitError(msg) {
+        // Show error beneath the submit button
+        let errEl = document.getElementById('submitError');
+        if (!errEl) {
+            errEl = document.createElement('p');
+            errEl.id = 'submitError';
+            errEl.className = 'submit-error';
+            submitBtn.after(errEl);
+        }
+        errEl.textContent = msg;
+    }
+    function clearSubmitError() {
+        const errEl = document.getElementById('submitError');
+        if (errEl) errEl.textContent = '';
+    }
+
+    form.addEventListener('submit', async e => {
         e.preventDefault();
         clearErrors();
+        clearSubmitError();
         let valid = true;
 
         if (!selectedDay || !selectedTime) {
@@ -258,18 +296,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!valid) return;
 
-        const dateStr = `${MONTHS[selectedDay.m]} ${selectedDay.d}, ${selectedDay.y}`;
-        modalText.textContent = `Your call is booked for ${dateStr} at ${selectedTime}. We'll send a confirmation to ${emailInput.value}.`;
-        modal.classList.add('visible');
+        const dateStr     = `${MONTHS[selectedDay.m]} ${selectedDay.d}, ${selectedDay.y}`;
+        const meetingType = document.querySelector('input[name="meetingType"]:checked')?.value || 'virtual';
+        const clientName  = nameInput.value.trim();
+        const clientEmail = emailInput.value.trim();
 
-        // Reset form
-        form.reset();
-        selectedDay = null;
-        selectedTime = null;
-        timeSlots.classList.remove('visible');
-        formSelected.classList.remove('has-selection');
-        selectedDT.textContent = 'Select a date & time';
-        renderCalendar();
+        // ── EmailJS send ──────────────────────────────
+        setLoading(true);
+
+        const templateParams = {
+            from_name   : clientName,
+            from_email  : clientEmail,
+            to_name     : clientName,   // used in client confirmation template greeting
+            phone       : phoneInput?.value.trim() || 'Not provided',
+            app_interest: appSelect.value,
+            meeting_type: meetingType === 'virtual' ? 'Virtual Call' : 'In-Person Meetup',
+            booking_date: dateStr,
+            booking_time: selectedTime,
+            message     : messageInput?.value.trim() || 'No brief provided',
+            reply_to    : clientEmail,
+        };
+
+        const isConfigured = typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY';
+
+        try {
+            if (isConfigured) {
+                // Send both in parallel — team notification + client auto-reply
+                await Promise.all([
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIFY, templateParams),
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CLIENT, templateParams),
+                ]);
+            } else {
+                // Dev fallback — log booking details without real credentials
+                console.log('📧 [DEV] Booking (EmailJS not yet configured):', templateParams);
+                await new Promise(r => setTimeout(r, 900));
+            }
+
+            // ── Success ──
+            modalText.textContent = `Your call is booked for ${dateStr} at ${selectedTime}. A confirmation has been sent to ${clientEmail}.`;
+            modal.classList.add('visible');
+
+            // Reset form state
+            form.reset();
+            selectedDay  = null;
+            selectedTime = null;
+            timeSlots.classList.remove('visible');
+            formSelected.classList.remove('has-selection');
+            selectedDT.textContent = 'Select a date & time';
+            renderCalendar();
+
+        } catch (err) {
+            console.error('EmailJS error:', err);
+            showSubmitError('⚠️ Something went wrong sending your booking. Please try again or email us directly at hello@studio88.ai');
+        } finally {
+            setLoading(false);
+        }
     });
 
     modalClose.addEventListener('click', () => {
