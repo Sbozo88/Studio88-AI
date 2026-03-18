@@ -11,10 +11,10 @@
    EMAILJS_TEMPLATE_NOTIFY → Template that emails YOU (team notification)
    EMAILJS_TEMPLATE_CLIENT → Template that emails THE CLIENT (auto-reply/confirmation)
    ─────────────────────────────────────────────────── */
-const EMAILJS_PUBLIC_KEY       = 'YOUR_PUBLIC_KEY';      // e.g. 'abc123XYZ'
-const EMAILJS_SERVICE_ID       = 'YOUR_SERVICE_ID';      // e.g. 'service_studio88'
-const EMAILJS_TEMPLATE_NOTIFY  = 'YOUR_TEMPLATE_ID';     // e.g. 'template_booking_notify'
-const EMAILJS_TEMPLATE_CLIENT  = 'YOUR_TEMPLATE_ID';     // e.g. 'template_booking_client' (can be same template)
+const EMAILJS_PUBLIC_KEY       = 'MFKU9sxE2EoppvwgW';
+const EMAILJS_SERVICE_ID       = 'service_n8leofn';
+const EMAILJS_TEMPLATE_NOTIFY  = 'template_0m2u0ve';
+const EMAILJS_TEMPLATE_CLIENT  = 'template_0m2u0ve'; // reusing same template
 
 // Apply theme early to prevent flash
 let savedTheme = null;
