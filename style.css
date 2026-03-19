@@ -821,7 +821,9 @@ body.light-mode .theme-toggle-btn .moon-icon {
 
 .form-group input[type="text"],
 .form-group input[type="email"],
-.form-group select {
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 13px 16px;
   font-size: .95rem;
@@ -834,8 +836,21 @@ body.light-mode .theme-toggle-btn .moon-icon {
   outline: none
 }
 
+.form-group textarea {
+  resize: vertical;
+  min-height: 88px;
+  line-height: 1.6
+}
+
+.form-optional {
+  font-size: .78rem;
+  font-weight: 400;
+  color: var(--text-muted)
+}
+
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow)
 }
@@ -981,6 +996,36 @@ body.light-mode .theme-toggle-btn .moon-icon {
   color: var(--text-dim);
   margin-bottom: 28px;
   line-height: 1.7
+}
+
+/* Submit button loading state */
+.btn--loading .btn-label {
+  opacity: 0
+}
+
+.btn--loading .btn-arrow {
+  display: none
+}
+
+.btn-spinner {
+  display: none
+}
+
+.btn--loading .btn-spinner {
+  display: block;
+  animation: spin 0.8s linear infinite
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg) }
+}
+
+.submit-error {
+  font-size: .85rem;
+  color: #ff5c5c;
+  margin-top: 12px;
+  text-align: center;
+  line-height: 1.5
 }
 
 /* Footer */
