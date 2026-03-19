@@ -267,8 +267,12 @@ document.addEventListener('DOMContentLoaded', () => {
         clearSubmitError();
         let valid = true;
 
+        console.log('--- Submit Event ---');
+        console.log('selectedDay:', selectedDay);
+        console.log('selectedTime:', selectedTime);
+
         if (!selectedDay || !selectedTime) {
-            alert('Please select a date and time first.');
+            alert('Please select a date and time first. (Debug state printed in console)');
             valid = false;
         }
         if (!nameInput.value.trim()) {
