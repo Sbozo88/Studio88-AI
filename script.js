@@ -2,19 +2,11 @@
    STUDIO88 AI — INTERACTIVITY
    ═══════════════════════════════════════════════════ */
 
-/* ── EmailJS Configuration ──────────────────────────
-   ⚠️  Replace the values below with YOUR EmailJS credentials.
-   Get them at https://www.emailjs.com (free, 200 emails/month)
-
-   EMAILJS_PUBLIC_KEY    → Account → API Keys → Public Key
-   EMAILJS_SERVICE_ID    → Email Services → your connected Gmail service ID
-   EMAILJS_TEMPLATE_NOTIFY → Template that emails YOU (team notification)
-   EMAILJS_TEMPLATE_CLIENT → Template that emails THE CLIENT (auto-reply/confirmation)
+/* ── Booking Configuration ──────────────────────────
+   We use a Cloudflare Pages Function at /functions/api/book.js
+   to securely handle Brevo emails. No API keys should be
+   pasted here for security!
    ─────────────────────────────────────────────────── */
-const EMAILJS_PUBLIC_KEY       = 'MFKU9sxE2EoppvwgW';
-const EMAILJS_SERVICE_ID       = 'service_n8leofn';
-const EMAILJS_TEMPLATE_NOTIFY  = 'template_0m2u0ve';
-const EMAILJS_TEMPLATE_CLIENT  = 'template_0m2u0ve'; // reusing same template
 
 // Apply theme early to prevent flash
 let savedTheme = null;
@@ -30,10 +22,8 @@ if (savedTheme === 'light') {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ── Init EmailJS ───────────────────────────────── */
-    if (typeof emailjs !== 'undefined') {
-        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-    }
+    /* ── Init Booking ───────────────────────────────── */
+    // No initialization needed for FETCH-based booking
 
     /* ── Theme Toggle ──────────────────────────────── */
     const themeToggle = document.getElementById('themeToggle');
@@ -301,35 +291,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const clientName  = nameInput.value.trim();
         const clientEmail = emailInput.value.trim();
 
-        // ── EmailJS send ──────────────────────────────
+        // ── Brevo / Cloudflare Function send ──────────
         setLoading(true);
 
-        const templateParams = {
+        const payload = {
             from_name   : clientName,
             from_email  : clientEmail,
-            to_name     : clientName,   // used in client confirmation template greeting
             phone       : phoneInput?.value.trim() || 'Not provided',
             app_interest: appSelect.value,
             meeting_type: meetingType === 'virtual' ? 'Virtual Call' : 'In-Person Meetup',
             booking_date: dateStr,
             booking_time: selectedTime,
-            message     : messageInput?.value.trim() || 'No brief provided',
-            reply_to    : clientEmail,
+            message     : messageInput?.value.trim() || 'No brief provided'
         };
 
-        const isConfigured = typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY';
-
         try {
-            if (isConfigured) {
-                // Send both in parallel — team notification + client auto-reply
-                await Promise.all([
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIFY, templateParams),
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CLIENT, templateParams),
-                ]);
-            } else {
-                // Dev fallback — log booking details without real credentials
-                console.log('📧 [DEV] Booking (EmailJS not yet configured):', templateParams);
-                await new Promise(r => setTimeout(r, 900));
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to send');
             }
 
             // ── Success ──
@@ -346,8 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
 
         } catch (err) {
-            console.error('EmailJS error:', err);
-            showSubmitError('⚠️ Something went wrong sending your booking. Please try again or email us directly at hello@studio88.ai');
+            console.error('Booking error:', err);
+            showSubmitError(`⚠️ ${err.message || 'Something went wrong.'} Please try again or email us directly at hello@studio88.ai`);
         } finally {
             setLoading(false);
         }
