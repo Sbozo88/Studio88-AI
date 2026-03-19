@@ -40,10 +40,10 @@ async function handleBooking(request, env) {
     const data = await request.json();
     const { from_name, from_email, phone, app_interest, meeting_type, booking_date, booking_time, message } = data;
 
-    const BREVO_API_KEY = env.BREVO_API_KEY;
+    const BREVO_API_KEY = env.BREVO_API_KEY ? env.BREVO_API_KEY.trim() : null;
 
     if (!BREVO_API_KEY) {
-      console.error('BREVO_API_KEY is not set.');
+      console.error('BREVO_API_KEY is not set or empty.');
       return new Response(JSON.stringify({ error: 'Server configuration error' }), { status: 500, headers });
     }
 
