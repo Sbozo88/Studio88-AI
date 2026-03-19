@@ -82,9 +82,9 @@ async function handleBooking(request, env) {
     });
 
     if (!teamEmail.ok) {
-      const errorData = await teamEmail.json();
-      console.error('Brevo team email error:', errorData);
-      return new Response(JSON.stringify({ error: 'Failed to send notification email' }), { status: 500, headers });
+      const errorText = await teamEmail.text();
+      console.error('Brevo team email error:', errorText);
+      return new Response(JSON.stringify({ error: `Brevo API Error: ${errorText}` }), { status: 500, headers });
     }
 
     // ── 2. Client Confirmation ────────────────────────
